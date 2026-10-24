@@ -1,0 +1,15 @@
+{
+  "name": "claude-agent-workflow",
+  "private": true,
+  "description": "Claude agent workflow showcase with a Google Apps Script web app",
+  "scripts": {
+    "login": "clasp login",
+    "status": "clasp show-file-status",
+    "push": "clasp push",
+    "pull": "clasp pull",
+    "open": "clasp open-script"
+  },
+  "devDependencies": {
+    "@google/clasp": "3.4.1"
+  }
+}
