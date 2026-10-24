@@ -7,8 +7,9 @@ Target files: all work goes into the two existing files in
 - `appsscript.json` (the manifest) only when the task needs it, e.g. new
   OAuth scopes, advanced services or web app settings
 Edit these files in place. Do NOT create new files or folders elsewhere.
-This folder is the clasp `rootDir`: `npm run push` uploads it to the linked
-Apps Script project and replaces what is there.
+This folder is the clasp `rootDir`. A GitHub Actions workflow uploads it to
+the linked Apps Script project, replacing what is there, only when `main` is
+updated. Never run `clasp push` yourself.
 
 1. Use the coder subagent to implement the task. Tell it the target files above.
 2. Use the reviewer subagent to review the uncommitted diff. Also check that
@@ -18,4 +19,4 @@ Apps Script project and replaces what is there.
    back to the coder, then review again. Maximum 2 rounds.
 4. Finish with a plain-language summary: files changed, what and why,
    remaining review findings, and tests run.
-5. Do NOT commit, git push, or `clasp push`. Wait for my approval.
+5. Do NOT commit or push. Wait for my approval.

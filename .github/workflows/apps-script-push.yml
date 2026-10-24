@@ -1,0 +1,44 @@
+name: Push to Apps Script
+
+# The Apps Script project is updated only from main.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "Apps Script code assets/**"
+      - ".clasp.json"
+  workflow_dispatch:
+
+concurrency:
+  group: apps-script-push
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Write clasp credentials
+        env:
+          CLASPRC_JSON: ${{ secrets.CLASPRC_JSON }}
+        run: |
+          if [ -z "$CLASPRC_JSON" ]; then
+            echo "::error::CLASPRC_JSON secret is not set"
+            exit 1
+          fi
+          umask 077
+          printf '%s' "$CLASPRC_JSON" > "$HOME/.clasprc.json"
+
+      - name: Push files
+        run: npx clasp push --force

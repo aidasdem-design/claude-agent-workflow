@@ -5,7 +5,6 @@
   "scripts": {
     "login": "clasp login",
     "status": "clasp show-file-status",
-    "push": "clasp push",
     "pull": "clasp pull",
     "open": "clasp open-script"
   },

@@ -24,6 +24,8 @@ Script project.
 │   ├── appsscript.json     # project manifest (time zone, runtime, web app)
 │   ├── Code.gs             # server-side Apps Script
 │   └── Index.html          # page served by the web app (HTML/CSS/JS)
+├── .github/workflows/
+│   └── apps-script-push.yml # pushes to Apps Script when main changes
 ├── .clasp.json             # links this repo to the Apps Script project
 ├── package.json            # pins clasp and adds npm scripts
 └── README.md
@@ -45,6 +47,17 @@ Script project.
 and sets `rootDir` to `Apps Script code assets/`. clasp is pinned as a dev
 dependency, so there's no global install.
 
+### The Apps Script project is updated only from `main`
+
+The GitHub Actions workflow `.github/workflows/apps-script-push.yml` runs
+`clasp push --force` whenever `main` gets a push that changes
+`Apps Script code assets/` or `.clasp.json`. You can also run it by hand from
+the **Actions** tab (**Run workflow**). Work on `dev` never reaches Apps Script.
+To ship a change, merge `dev` into `main`.
+
+A push **replaces** every file in the remote project, so make all edits in the
+repo, not in the online editor.
+
 One-time setup:
 
 1. Run `npm install`.
@@ -52,19 +65,19 @@ One-time setup:
    <https://script.google.com/home/usersettings>.
 3. Run `npm run login`. This opens a browser to authorize clasp, and the
    credentials are saved to `~/.clasprc.json`, outside the repo.
+4. Store those credentials as the repo secret `CLASPRC_JSON` so the workflow
+   can use them:
+   `gh secret set CLASPRC_JSON < ~/.clasprc.json`.
+   If you ever run `clasp logout` or revoke clasp's access in your Google
+   account, run steps 3 and 4 again.
 
-Day to day:
+Local helpers (there is deliberately no push script):
 
-| Command          | What it does                                                 |
-| ---------------- | ------------------------------------------------------------ |
-| `npm run status` | Lists the files that would be pushed                         |
-| `npm run push`   | Uploads local files and **replaces** the remote project files |
-| `npm run pull`   | Downloads the remote files and overwrites the local ones     |
-| `npm run open`   | Opens the project in the Apps Script editor                  |
-
-Edit the files locally, then `npm run push`. Avoid editing in the online
-editor; if you do, `npm run pull` before making local changes, or the next
-push will overwrite your online edits.
+| Command          | What it does                                             |
+| ---------------- | -------------------------------------------------------- |
+| `npm run status` | Lists the files the workflow would push                  |
+| `npm run pull`   | Downloads the remote files and overwrites the local ones |
+| `npm run open`   | Opens the project in the Apps Script editor              |
 
 To publish the web app, use **Deploy → New deployment → Web app** in the
 editor, or `npx clasp deploy`. The manifest sets the web app to run as you
@@ -118,8 +131,9 @@ doesn't allow new files or folders anywhere else.
    runs for at most 2 rounds.
 4. **Summary.** Claude reports the files changed, what changed and why, any
    remaining review findings, and the tests that were run.
-5. **Approval gate.** Nothing is committed, pushed to git, or pushed to Apps
-   Script with `clasp push` until you approve.
+5. **Approval gate.** Nothing is committed or pushed to git until you approve.
+   Nothing is ever pushed to Apps Script directly: that only happens when
+   `main` is updated.
 
 ```
 task ─▶ coder ─▶ reviewer ─┬─ APPROVE ─────────────▶ summary ─▶ you approve ─▶ commit
@@ -130,4 +144,5 @@ task ─▶ coder ─▶ reviewer ─┬─ APPROVE ─────────�
 ## Branches
 
 - `dev` is the working branch.
-- `main` holds the approved setup and is updated from `dev`.
+- `main` holds the approved setup and is updated from `dev`. Every update to
+  `main` deploys the code to the Apps Script project.
